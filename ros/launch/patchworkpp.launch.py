@@ -23,7 +23,7 @@ def generate_launch_description():
     base_frame = LaunchConfiguration("base_frame", default="velodyne")
 
     # ROS configuration
-    pointcloud_topic = LaunchConfiguration("cloud_topic", default="/velodyne_points")
+    pointcloud_topic = LaunchConfiguration("cloud_topic", default="/rslidar_points")
     visualize = LaunchConfiguration("visualize", default="false")
 
     # Optional ros bag play
