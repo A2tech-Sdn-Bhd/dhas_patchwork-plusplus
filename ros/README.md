@@ -147,7 +147,7 @@ No parameter descriptors are supplied. Consequently none is descriptor-level rea
 
 | Name | Type | Source default | Launch value | Meaning / runtime mutability |
 | --- | --- | ---: | ---: | --- |
-| `base_frame` | string | `base_link` | `velodyne` | Frame ID written onto ground/non-ground outputs. Startup-only in practice. |
+| `base_frame` | string | `base_link` | `rslidar` | Frame ID written onto ground/non-ground outputs. Startup-only in practice. |
 | `sensor_height` | double | `1.723` | `0.8` | Sensor height used for initial seed selection and adaptive elevation. Startup-only. |
 | `num_iter` | integer | `3` | `3` | PCA/plane-fitting iterations per patch. Startup-only. |
 | `num_lpr` | integer | `20` | `10` | Maximum lowest-point representatives used to compute the initial height. Startup-only. |
@@ -173,7 +173,7 @@ Starts `patchworkpp_node`, optionally starts RViz with the installed configurati
 | Launch configuration | Default | Description / use |
 | --- | --- | --- |
 | `use_sim_time` | `false` | Passed to the node as the standard ROS time parameter. |
-| `base_frame` | `velodyne` | Passed as `base_frame`. |
+| `base_frame` | `rslidar` | Passed as `base_frame`. |
 | `cloud_topic` | `/rslidar_points` | Remaps the node's `pointcloud_topic` subscription. |
 | `visualize` | `false` | If true, starts `rviz2 -d <share>/rviz/patchworkpp.rviz`. |
 | `bagfile` | empty string | If non-empty, runs `ros2 bag play <bagfile>` once; no loop or storage option is added. |
@@ -185,7 +185,7 @@ Example:
 ```bash
 ros2 launch patchworkpp patchworkpp.launch.py \
   cloud_topic:=/rslidar_points \
-  base_frame:=velodyne \
+  base_frame:=rslidar \
   visualize:=true \
   use_sim_time:=false
 ```
@@ -252,7 +252,7 @@ No `FIXME`, `HACK`, or `XXX` comments were found in the ROS wrapper or bundled c
 - Ground/non-ground points are not transformed into `base_frame`; only the header string is replaced. If input coordinates are not already expressed in that frame, the output is mislabeled (`src/GroundSegmentationServer.cpp:90-98`). Despite declared `tf2`/`tf2_ros` dependencies, no transform is performed.
 - Absolute output topic names ignore node namespaces. Remap them explicitly when multiple instances are needed.
 - Output clouds discard every field except XYZ. RNR is disabled because intensity is unavailable to the core, and timestamp extraction/deskew helpers are dead code in this node.
-- The RViz configuration is dataset-specific: its Lexus fixed frame/input topic do not match launch defaults `velodyne` and `/rslidar_points`. Ground/non-ground still display only if TF can resolve the hard-coded fixed frame.
+- The RViz configuration is dataset-specific: its Lexus fixed frame/input topic do not match launch defaults `rslidar` and `/rslidar_points`. Ground/non-ground still display only if TF can resolve the hard-coded fixed frame.
 - Publisher QoS uses transient-local durability for high-bandwidth point clouds, retaining a sample for late joiners; the source comment itself suggests changing QoS for real-time operation (`src/GroundSegmentationServer.cpp:58-67`). RViz requests volatile durability, which is compatible with a transient-local publisher. No definite package-internal QoS incompatibility was found; external producer/consumer QoS is unavailable [UNCLEAR — verify].
 - The manifest declares several unused dependencies (`rcutils`, `geometry_msgs`, `nav_msgs`, `tf2`, `tf2_ros`) and omits optional launch-time dependencies (`rviz2`, `ros2bag`) plus the effective Eigen/system-tool build requirements.
 - `geometry_msgs` is passed to `ament_target_dependencies` without a direct `find_package(geometry_msgs REQUIRED)`, and `std_msgs` is used without either a direct `find_package` or target dependency. The current build succeeds through transitive discovery, but this is fragile (`CMakeLists.txt:24-45`).
